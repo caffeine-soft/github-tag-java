@@ -17,13 +17,19 @@ public class ActionCore {
         String githubOutput = System.getenv("GITHUB_OUTPUT");
         if (githubOutput != null && !githubOutput.isBlank()) {
             try {
-                String outputLine = name + "=" + value + System.lineSeparator();
+                String outputLine;
+                if (value != null && (value.contains("\n") || value.contains("\r"))) {
+                    String delimiter = "EOF_DELIMITER";
+                    outputLine = name + "<<" + delimiter + "\n" + value + "\n" + delimiter + "\n";
+                } else {
+                    outputLine = name + "=" + value + "\n";
+                }
                 Files.writeString(Path.of(githubOutput), outputLine, StandardOpenOption.APPEND);
             } catch (IOException e) {
                 System.err.println("Failed to write to GITHUB_OUTPUT: " + e.getMessage());
             }
         } else {
-            System.out.println("::set-output name=" + name + "::" + value);
+            System.out.println("::set-output name=" + name + "::" + (value != null ? value.replace("\n", "%0A") : ""));
         }
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class Main {
-    public static void main(String[] args) {
+    static void main() {
         try {
             runAction();
         } catch (Exception e) {
@@ -23,6 +23,8 @@ public class Main {
     private static void runAction() throws Exception {
         String defaultBumpInput = ActionCore.getInput("default_bump");
         String defaultPreReleaseBumpInput = ActionCore.getInput("default_prerelease_bump");
+        String releaseBranches = ActionCore.getInput("release_branches");
+        String preReleaseBranches = ActionCore.getInput("pre_release_branches");
         String tagPrefix = ActionCore.getInput("tag_prefix");
         String appendToPreReleaseTag = ActionCore.getInput("append_to_pre_release_tag");
         boolean dryRun = Boolean.parseBoolean(ActionCore.getInput("dry_run"));
@@ -52,7 +54,7 @@ public class Main {
         Tag latestPrereleaseTag = TagAnalyzer.getLatestPrereleaseTag(validTags, identifier, prefixRegex);
 
         Tag previousTag;
-        if (latestPrereleaseTag == null) {
+        if(latestPrereleaseTag == null) {
             previousTag = latestTag;
         } else {
             SemVer latestVer = SemVer.parse(prefixRegex.matcher(latestTag.name()).replaceFirst(""));
@@ -70,18 +72,66 @@ public class Main {
         CommitAnalyzer analyzer = new CommitAnalyzer();
         ReleaseType calculatedBump = ReleaseType.NONE;
 
-        for (String msg : commitMessages) {
+        StringBuilder changelogBuilder = new StringBuilder();
+        changelogBuilder.append("## What's Changed\n\n");
+
+        for(String msg : commitMessages) {
             ReleaseType type = analyzer.analyzeCommit(msg);
-            if (type.compareTo(calculatedBump) < 0 && type != ReleaseType.NONE) {
+            if(type.compareTo(calculatedBump) < 0 && type != ReleaseType.NONE) {
                 calculatedBump = type;
+            }
+
+            String firstLine = msg.split("\n")[0].trim();
+            if(!firstLine.isBlank()) {
+                changelogBuilder.append("* ").append(firstLine).append("\n");
             }
         }
 
-        if (calculatedBump == ReleaseType.NONE) {
-            calculatedBump = ReleaseType.fromString(defaultBumpInput);
+        String changelog = changelogBuilder.toString();
+        ActionCore.setOutput("changelog", changelog);
+        ActionCore.info("Generated Changelog:\n" + changelog);
+
+        boolean isReleaseBranch = false;
+        if(!releaseBranches.isBlank()) {
+            for(String branch : releaseBranches.split(",")) {
+                if(currentBranch.matches(branch.trim().replace("*", ".*"))) {
+                    isReleaseBranch = true;
+                    break;
+                }
+            }
         }
 
-        if (calculatedBump == ReleaseType.NONE) {
+        boolean isPreReleaseBranch = false;
+        if(!preReleaseBranches.isBlank()) {
+            for(String branch : preReleaseBranches.split(",")) {
+                if(currentBranch.matches(branch.trim().replace("*", ".*"))) {
+                    isPreReleaseBranch = true;
+                    break;
+                }
+            }
+        }
+
+        boolean isPullRequest = githubRef != null && githubRef.contains("refs/pull/");
+        boolean isPrerelease = !isReleaseBranch && !isPullRequest && isPreReleaseBranch;
+
+        if(isPrerelease) {
+            if(calculatedBump == ReleaseType.NONE) {
+                calculatedBump = ReleaseType.fromString(defaultPreReleaseBumpInput);
+            }
+
+            calculatedBump = switch (calculatedBump) {
+                case MAJOR -> ReleaseType.PREMAJOR;
+                case MINOR -> ReleaseType.PREMINOR;
+                case PATCH -> ReleaseType.PREPATCH;
+                default -> calculatedBump; // Keeps existing PRERELEASE, NONE, etc.
+            };
+        } else {
+            if(calculatedBump == ReleaseType.NONE) {
+                calculatedBump = ReleaseType.fromString(defaultBumpInput);
+            }
+        }
+
+        if(calculatedBump == ReleaseType.NONE) {
             ActionCore.info("No commit specifies the version bump. Skipping the tag creation.");
             return;
         }
@@ -93,7 +143,18 @@ public class Main {
         ActionCore.setOutput("new_version", newVersion.getVersionString());
         ActionCore.setOutput("new_tag", newTag);
 
-        if (dryRun) {
+        if (!isReleaseBranch && !isPreReleaseBranch) {
+            ActionCore.info("This branch is neither a release nor a pre-release branch. Skipping the tag creation.");
+            return;
+        }
+
+        boolean tagExists = validTags.stream().anyMatch(t -> t.name().equals(newTag));
+        if (tagExists) {
+            ActionCore.info("This tag already exists. Skipping the tag creation.");
+            return;
+        }
+
+        if(dryRun) {
             ActionCore.info("Dry run: not performing tag action.");
             return;
         }

@@ -38,6 +38,14 @@ inputs:
   commit_sha:
     description: 'The commit SHA to tag. Defaults to the commit triggering the workflow.'
     required: false
+  release_branches:
+    description: 'Comma separated list of branches (bash reg-ex) that will generate the release tags.'
+    required: false
+    default: 'main,master'
+  pre_release_branches:
+    description: 'Comma separated list of branches (bash reg-ex) that will generate the pre-release tags.'
+    required: false
+    default: 'next,next-major,beta,alpha'
 
 outputs:
   new_version:
@@ -52,6 +60,9 @@ outputs:
   previous_tag:
     description: 'The previous tag (with prefix).'
     value: ${{ steps.run-java.outputs.previous_tag }}
+  changelog:
+    description: 'The generated markdown changelog of commits.'
+    value: ${{ steps.run-java.outputs.changelog }}
 
 runs:
   using: 'composite'
@@ -70,3 +81,5 @@ runs:
         INPUT_FETCH_ALL_TAGS: ${{ inputs.fetch_all_tags }}
         INPUT_CREATE_ANNOTATED_TAG: ${{ inputs.create_annotated_tag }}
         INPUT_COMMIT_SHA: ${{ inputs.commit_sha }}
+        INPUT_RELEASE_BRANCHES: ${{ inputs.release_branches }}
+        INPUT_PRE_RELEASE_BRANCHES: ${{ inputs.pre_release_branches }}
