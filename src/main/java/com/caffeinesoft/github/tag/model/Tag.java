@@ -1,4 +1,4 @@
-package com.caffeinesoft.githubtag.model;
+package com.caffeinesoft.github.tag.model;
 
 public record Tag(
         String name,

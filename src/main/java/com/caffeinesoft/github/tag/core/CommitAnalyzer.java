@@ -1,4 +1,4 @@
-package com.caffeinesoft.githubtag.core;
+package com.caffeinesoft.github.tag.core;
 
 import com.caffeinesoft.semver.ReleaseType;
 

@@ -34,7 +34,7 @@ tasks.jar {
     archiveFileName.set("github-tag-java.jar")
 
     manifest {
-        attributes["Main-Class"] = "com.caffeinesoft.githubtag.Main"
+        attributes["Main-Class"] = "com.caffeinesoft.github.tag.Main"
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)

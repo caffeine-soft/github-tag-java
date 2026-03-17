@@ -1,4 +1,4 @@
-package com.caffeinesoft.githubtag.utils;
+package com.caffeinesoft.github.tag.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,9 +1,9 @@
-package com.caffeinesoft.githubtag;
+package com.caffeinesoft.github.tag;
 
-import com.caffeinesoft.githubtag.client.GitHubClient;
-import com.caffeinesoft.githubtag.core.CommitAnalyzer;
-import com.caffeinesoft.githubtag.model.Tag;
-import com.caffeinesoft.githubtag.utils.ActionCore;
+import com.caffeinesoft.github.tag.client.GitHubClient;
+import com.caffeinesoft.github.tag.core.CommitAnalyzer;
+import com.caffeinesoft.github.tag.model.Tag;
+import com.caffeinesoft.github.tag.utils.ActionCore;
 import com.caffeinesoft.semver.ReleaseType;
 import com.caffeinesoft.semver.SemVer;
 import com.caffeinesoft.semver.TagAnalyzer;

@@ -1,7 +1,7 @@
 package com.caffeinesoft.semver;
 
-import com.caffeinesoft.githubtag.model.CommitReference;
-import com.caffeinesoft.githubtag.model.Tag;
+import com.caffeinesoft.github.tag.model.CommitReference;
+import com.caffeinesoft.github.tag.model.Tag;
 
 import java.util.List;
 import java.util.regex.Pattern;

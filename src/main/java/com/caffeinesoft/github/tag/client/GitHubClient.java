@@ -1,7 +1,7 @@
-package com.caffeinesoft.githubtag.client;
+package com.caffeinesoft.github.tag.client;
 
-import com.caffeinesoft.githubtag.model.CommitReference;
-import com.caffeinesoft.githubtag.model.Tag;
+import com.caffeinesoft.github.tag.model.CommitReference;
+import com.caffeinesoft.github.tag.model.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -1,3 +1,3 @@
-package com.caffeinesoft.githubtag.model;
+package com.caffeinesoft.github.tag.model;
 
 public record CommitReference(String sha, String url) {}
