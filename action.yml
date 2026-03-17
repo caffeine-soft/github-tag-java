@@ -59,7 +59,7 @@ runs:
     - name: Execute Java Action
       id: run-java
       shell: bash
-      run: java -jar "$GITHUB_ACTION_PATH/build/libs/github-tag-java-1.0.0.jar"
+      run: java -jar "$GITHUB_ACTION_PATH/build/libs/github-tag-java.jar"
       env:
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
         INPUT_DEFAULT_BUMP: ${{ inputs.default_bump }}

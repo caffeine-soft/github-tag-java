@@ -31,6 +31,8 @@ tasks.withType<Test> {
 }
 
 tasks.jar {
+    archiveFileName.set("github-tag-java.jar")
+
     manifest {
         attributes["Main-Class"] = "com.caffeinesoft.githubtag.Main"
     }
