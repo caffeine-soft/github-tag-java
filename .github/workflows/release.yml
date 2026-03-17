@@ -32,7 +32,7 @@ jobs:
 
       - name: Bump Version and Tag
         if: github.event_name == 'push'
-        id: tag_repo
+        id: tag_version
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -40,23 +40,21 @@ jobs:
           create_annotated_tag: false
 
       - name: Rename JAR for Release
-        if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
-        run: cp build/libs/github-tag-java.jar build/libs/github-tag-java-${{ steps.tag_repo.outputs.new_version }}.jar
+        if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
+        run: cp build/libs/github-tag-java.jar build/libs/github-tag-java-${{ steps.tag_version.outputs.new_version }}.jar
 
       - name: Create GitHub Release
-        if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
-        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ steps.tag_repo.outputs.new_tag }}
-          name: v${{ steps.tag_repo.outputs.new_version }}
-          body: ${{ steps.tag_repo.outputs.changelog }}
-          files: build/libs/github-tag-java-${{ steps.tag_repo.outputs.new_version }}.jar
-          generate_release_notes: true
-
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: v${{ steps.tag_version.outputs.new_version }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          artifacts: "build/libs/github-tag-java-${{ steps.tag_version.outputs.new_version }}.jar"
       - name: Publish Executable Tags
-        if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
+        if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
         run: |
-            MAJOR_VERSION=$(echo "${{ steps.tag_repo.outputs.new_version }}" | cut -d'.' -f1)
+            MAJOR_VERSION=$(echo "${{ steps.tag_version.outputs.new_version }}" | cut -d'.' -f1)
             
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -65,12 +63,12 @@ jobs:
             git add -f build/libs/github-tag-java.jar
             
             # Commit it only to the local runner
-            git commit -m "build: compile action for ${{ steps.tag_repo.outputs.new_tag }}"
+            git commit -m "build: compile action for ${{ steps.tag_version.outputs.new_tag }}"
             
             # Move the exact version tag and the floating major tag to this new commit
-            git tag -fa "${{ steps.tag_repo.outputs.new_tag }}" -m "Release ${{ steps.tag_repo.outputs.new_tag }}"
+            git tag -fa "${{ steps.tag_version.outputs.new_tag }}" -m "Release ${{ steps.tag_version.outputs.new_tag }}"
             git tag -fa "v${MAJOR_VERSION}" -m "Update v${MAJOR_VERSION} tag"
             
             # Push the tags back to GitHub
-            git push origin "${{ steps.tag_repo.outputs.new_tag }}" --force
+            git push origin "${{ steps.tag_version.outputs.new_tag }}" --force
             git push origin "v${MAJOR_VERSION}" --force
