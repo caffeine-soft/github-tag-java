@@ -1,4 +1,4 @@
-package com.caffeinesoft.github.tag.client;
+package com.caffeinesoft.github.client;
 
 import com.caffeinesoft.github.tag.model.CommitReference;
 import com.caffeinesoft.github.tag.model.Tag;

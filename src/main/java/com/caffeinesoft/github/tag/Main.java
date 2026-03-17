@@ -1,6 +1,6 @@
 package com.caffeinesoft.github.tag;
 
-import com.caffeinesoft.github.tag.client.GitHubClient;
+import com.caffeinesoft.github.client.GitHubClient;
 import com.caffeinesoft.github.tag.core.CommitAnalyzer;
 import com.caffeinesoft.github.tag.model.Tag;
 import com.caffeinesoft.github.tag.utils.ActionCore;
