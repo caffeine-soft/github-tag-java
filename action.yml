@@ -1,0 +1,72 @@
+name: 'GitHub Tag Java'
+description: 'Bump and tag your GitHub repository using Semantic Versioning natively in Java 25.'
+author: 'CaffeineSoft'
+
+inputs:
+  github_token:
+    description: 'Required for permission to tag the repo.'
+    required: true
+    default: ${{ github.token }}
+  default_bump:
+    description: 'Which type of bump to use when none explicitly provided.'
+    required: false
+    default: 'patch'
+  default_prerelease_bump:
+    description: 'Which type of bump to use when none explicitly provided for a prerelease.'
+    required: false
+    default: 'prerelease'
+  tag_prefix:
+    description: 'A prefix to add to the new tag (e.g., "v").'
+    required: false
+    default: 'v'
+  append_to_pre_release_tag:
+    description: 'A string to append to the prerelease tag (e.g., "rc" or "alpha").'
+    required: false
+    default: ''
+  dry_run:
+    description: 'Do not actually tag the repository.'
+    required: false
+    default: 'false'
+  fetch_all_tags:
+    description: 'Fetch all tags to determine the previous version.'
+    required: false
+    default: 'false'
+  create_annotated_tag:
+    description: 'Create an annotated tag instead of a lightweight tag.'
+    required: false
+    default: 'false'
+  commit_sha:
+    description: 'The commit SHA to tag. Defaults to the commit triggering the workflow.'
+    required: false
+
+outputs:
+  new_version:
+    description: 'The newly generated semantic version.'
+    value: ${{ steps.run-java.outputs.new_version }}
+  new_tag:
+    description: 'The newly generated tag (with prefix).'
+    value: ${{ steps.run-java.outputs.new_tag }}
+  previous_version:
+    description: 'The previous semantic version.'
+    value: ${{ steps.run-java.outputs.previous_version }}
+  previous_tag:
+    description: 'The previous tag (with prefix).'
+    value: ${{ steps.run-java.outputs.previous_tag }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Execute Java Action
+      id: run-java
+      shell: bash
+      run: java -jar "$GITHUB_ACTION_PATH/build/libs/github-tag-java-1.0.0.jar"
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_DEFAULT_BUMP: ${{ inputs.default_bump }}
+        INPUT_DEFAULT_PRERELEASE_BUMP: ${{ inputs.default_prerelease_bump }}
+        INPUT_TAG_PREFIX: ${{ inputs.tag_prefix }}
+        INPUT_APPEND_TO_PRE_RELEASE_TAG: ${{ inputs.append_to_pre_release_tag }}
+        INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        INPUT_FETCH_ALL_TAGS: ${{ inputs.fetch_all_tags }}
+        INPUT_CREATE_ANNOTATED_TAG: ${{ inputs.create_annotated_tag }}
+        INPUT_COMMIT_SHA: ${{ inputs.commit_sha }}
