@@ -36,7 +36,7 @@ jobs:
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: minor
+          default_bump: patch
           create_annotated_tag: false
 
       - name: Rename JAR for Release
