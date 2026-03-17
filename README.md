@@ -1,6 +1,6 @@
 # GitHub Tag Java
 
-A lightweight, lightning-fast GitHub Action to automatically calculate and bump Semantic Versioning tags based on commit messages. Rewritten in pure Java 25 as a zero-dependency composite action for maximum performance.
+A lightweight, lightning-fast GitHub Action to automatically calculate and bump Semantic Versioning tags based on commit messages. Written in pure Java 25 as a zero-dependency composite action for maximum performance.
 
 ## Usage
 
@@ -21,13 +21,13 @@ jobs:
       contents: write # Required to push tags and create releases
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Important: Fetch all history for commit analysis
 
       - name: Bump Version and Tag
         id: tag_version
-        uses: caffeinesoft/github-tag-java@v1
+        uses: caffeine-soft/github-tag-java@v0.4.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: minor
