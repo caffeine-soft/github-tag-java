@@ -2,9 +2,8 @@ package com.caffeinesoft.githubtag.client;
 
 import com.caffeinesoft.githubtag.model.CommitReference;
 import com.caffeinesoft.githubtag.model.Tag;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.json.JsonMapper;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,9 +16,8 @@ import java.util.List;
 public class GitHubClient {
     private final HttpClient httpClient;
     private final String githubToken;
-    private final String repository; // Format: "owner/repo"
+    private final String repository;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().build();
     private static final String GITHUB_API_URL = "https://api.github.com";
     private static final String API_VERSION_HEADER = "2026-03-10";
 
@@ -58,28 +56,28 @@ public class GitHubClient {
                 throw new RuntimeException("Failed to fetch tags: " + response.body());
             }
 
-            JsonNode tagsArray = MAPPER.readTree(response.body());
-            int fetchedCount = 0;
+            JSONArray tagsArray = new JSONArray(response.body());
+            int fetchedCount = tagsArray.length();
 
-            if (tagsArray.isArray()) {
-                for (JsonNode tagNode : tagsArray) {
-                    fetchedCount++;
-                    JsonNode commitNode = tagNode.path("commit");
+            for (int i = 0; i < fetchedCount; i++) {
+                JSONObject tagNode = tagsArray.getJSONObject(i);
+                JSONObject commitNode = tagNode.optJSONObject("commit");
 
-                    CommitReference commitRef = new CommitReference(
-                            commitNode.path("sha") .asString(""),
-                            commitNode.path("url") .asString("")
-                    );
+                if (commitNode == null) commitNode = new JSONObject();
 
-                    Tag tag = new Tag(
-                            tagNode.path("name") .asString(""),
-                            commitRef,
-                            tagNode.path("zipball_url") .asString(""),
-                            tagNode.path("tarball_url") .asString(""),
-                            tagNode.path("node_id") .asString("")
-                    );
-                    allTags.add(tag);
-                }
+                CommitReference commitRef = new CommitReference(
+                        commitNode.optString("sha", ""),
+                        commitNode.optString("url", "")
+                );
+
+                Tag tag = new Tag(
+                        tagNode.optString("name", ""),
+                        commitRef,
+                        tagNode.optString("zipball_url", ""),
+                        tagNode.optString("tarball_url", ""),
+                        tagNode.optString("node_id", "")
+                );
+                allTags.add(tag);
             }
 
             if (!shouldFetchAllTags || fetchedCount < 100) {
@@ -105,15 +103,20 @@ public class GitHubClient {
             throw new RuntimeException("Failed to compare commits (" + baseRef + "..." + headRef + "): " + response.body());
         }
 
-        JsonNode root = MAPPER.readTree(response.body());
-        JsonNode commitsArray = root.path("commits");
+        JSONObject root = new JSONObject(response.body());
+        JSONArray commitsArray = root.optJSONArray("commits");
 
         List<String> messages = new ArrayList<>();
-        if (commitsArray.isArray()) {
-            for (JsonNode commitNode : commitsArray) {
-                String message = commitNode.path("commit").path("message") .asString(null);
-                if (message != null && !message.isBlank()) {
-                    messages.add(message);
+        if (commitsArray != null) {
+            for (int i = 0; i < commitsArray.length(); i++) {
+                JSONObject commitItem = commitsArray.getJSONObject(i);
+                JSONObject commitNode = commitItem.optJSONObject("commit");
+
+                if (commitNode != null) {
+                    String message = commitNode.optString("message", null);
+                    if (message != null && !message.isBlank()) {
+                        messages.add(message);
+                    }
                 }
             }
         }
@@ -129,7 +132,7 @@ public class GitHubClient {
 
         if (createAnnotatedTag) {
             System.out.println("Creating annotated tag object in Git...");
-            String tagBody = MAPPER.createObjectNode()
+            String tagBody = new JSONObject()
                     .put("tag", newTag)
                     .put("message", newTag)
                     .put("object", targetSha)
@@ -146,12 +149,12 @@ public class GitHubClient {
                 throw new RuntimeException("Failed to create annotated tag object: " + tagResponse.body());
             }
 
-            JsonNode responseNode = MAPPER.readTree(tagResponse.body());
-            finalSha = responseNode.path("sha") .asString(targetSha);
+            JSONObject responseNode = new JSONObject(tagResponse.body());
+            finalSha = responseNode.optString("sha", targetSha);
         }
 
         System.out.println("Pushing new tag reference to the repository...");
-        String refBody = MAPPER.createObjectNode()
+        String refBody = new JSONObject()
                 .put("ref", "refs/tags/" + newTag)
                 .put("sha", finalSha)
                 .toString();

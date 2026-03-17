@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("tools.jackson.core:jackson-databind:3.1.0")
+    implementation("org.json:json:20251224")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
