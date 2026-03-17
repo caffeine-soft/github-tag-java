@@ -39,22 +39,16 @@ jobs:
           default_bump: minor
           create_annotated_tag: true
 
+            # 2. Rename the generic JAR to match the calculated version precisely
+      - name: Rename JAR for Release
+        if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
+        run: mv build/libs/github-tag-java.jar build/libs/github-tag-java-${{ steps.tag_repo.outputs.new_version }}.jar
+
       - name: Create GitHub Release
         if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag_repo.outputs.new_tag }}
           name: v${{ steps.tag_repo.outputs.new_version }}
-          files: build/libs/github-tag-java-1.0.0.jar
+          files: build/libs/github-tag-java-${{ steps.tag_repo.outputs.new_version }}.jar
           generate_release_notes: true
-
-      - name: Update Major Version Tag
-        if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
-        run: |
-          MAJOR_VERSION=$(echo "${{ steps.tag_repo.outputs.new_version }}" | cut -d'.' -f1)
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          git tag -fa "v${MAJOR_VERSION}" -m "Update v${MAJOR_VERSION} tag to latest release"
-          git push origin "v${MAJOR_VERSION}" --force
