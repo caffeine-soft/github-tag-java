@@ -26,6 +26,10 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 tasks.jar {
     manifest {
         attributes["Main-Class"] = "com.caffeinesoft.githubtag.Main"
