@@ -39,7 +39,6 @@ jobs:
           default_bump: minor
           create_annotated_tag: true
 
-            # 2. Rename the generic JAR to match the calculated version precisely
       - name: Rename JAR for Release
         if: github.event_name == 'push' && steps.tag_repo.outputs.new_tag != ''
         run: mv build/libs/github-tag-java.jar build/libs/github-tag-java-${{ steps.tag_repo.outputs.new_version }}.jar
