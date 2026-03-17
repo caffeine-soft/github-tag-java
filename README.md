@@ -1,4 +1,3 @@
-```markdown
 # GitHub Tag Java
 
 A lightweight, lightning-fast GitHub Action to automatically calculate and bump Semantic Versioning tags based on commit messages. Rewritten in pure Java 25 as a zero-dependency composite action for maximum performance.
