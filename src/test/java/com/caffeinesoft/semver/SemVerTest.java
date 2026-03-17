@@ -19,7 +19,7 @@ class SemVerTest {
     @Test
     void testInvalidParse() {
         assertNull(SemVer.parse("invalid-version"));
-        assertNull(SemVer.parse("1.2")); // Missing patch
+        assertNull(SemVer.parse("1.2"));
     }
 
     @Test
