@@ -45,7 +45,7 @@ jobs:
 
       - name: Create GitHub Release
         if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
-        uses: ncipollo/release-action@v1
+        uses: caffeine-soft/github-release-java@v0
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: v${{ steps.tag_version.outputs.new_version }}
