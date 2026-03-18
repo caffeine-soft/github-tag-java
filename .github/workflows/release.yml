@@ -45,7 +45,7 @@ jobs:
 
       - name: Create GitHub Release
         if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
-        uses: ncipollo/release-action@v1
+        uses: caffeine-soft/github-release-java@v0.1.0
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: v${{ steps.tag_version.outputs.new_version }}
@@ -57,7 +57,7 @@ jobs:
             MAJOR_VERSION=$(echo "${{ steps.tag_version.outputs.new_version }}" | cut -d'.' -f1)
             
             git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git config user.email "github-actions@noreply.github.com"
             
             # Force Git to track the compiled generic JAR (ignoring the .gitignore)
             git add -f build/libs/github-tag-java.jar
@@ -68,7 +68,7 @@ jobs:
             # Move the exact version tag and the floating major tag to this new commit
             git tag -fa "${{ steps.tag_version.outputs.new_tag }}" -m "Release ${{ steps.tag_version.outputs.new_tag }}"
             git tag -fa "v${MAJOR_VERSION}" -m "Update v${MAJOR_VERSION} tag"
-            
-            # Push the tags back to GitHub
+          
+          # Push the tags back to GitHub
             git push origin "${{ steps.tag_version.outputs.new_tag }}" --force
             git push origin "v${MAJOR_VERSION}" --force
