@@ -27,7 +27,7 @@ jobs:
 
       - name: Bump Version and Tag
         id: tag_version
-        uses: caffeine-soft/github-tag-java@v0.5.2
+        uses: caffeine-soft/github-tag-java@v0.4.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: minor
