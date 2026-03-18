@@ -54,7 +54,7 @@ public class Main {
         Tag latestPrereleaseTag = TagAnalyzer.getLatestPrereleaseTag(validTags, identifier, prefixRegex);
 
         Tag previousTag;
-        if(latestPrereleaseTag == null) {
+        if(latestPrereleaseTag == null){
             previousTag = latestTag;
         } else {
             SemVer latestVer = SemVer.parse(prefixRegex.matcher(latestTag.name()).replaceFirst(""));
