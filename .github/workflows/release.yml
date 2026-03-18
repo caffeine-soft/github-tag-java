@@ -47,10 +47,11 @@ jobs:
         if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
         uses: caffeine-soft/github-release-java@v0.1.0
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: v${{ steps.tag_version.outputs.new_version }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          artifacts: "build/libs/github-tag-java-${{ steps.tag_version.outputs.new_version }}.jar"
+          artifacts: 'build/libs/github-tag-java-${{ steps.tag_version.outputs.new_version }}.jar'
       - name: Publish Executable Tags
         if: github.event_name == 'push' && steps.tag_version.outputs.new_tag != ''
         run: |
